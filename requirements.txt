@@ -1,0 +1,12 @@
+boto3==1.26.99
+boto3-stubs==1.26.99
+botocore==1.29.99
+botocore-stubs==1.29.99
+jmespath==1.0.1
+python-dateutil==2.8.2
+s3transfer==0.6.0
+six==1.16.0
+types-awscrt==0.16.13.post1
+types-s3transfer==0.6.0.post7
+urllib3==1.26.15
+requests~=2.28.2
