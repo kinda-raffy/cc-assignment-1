@@ -1,0 +1,48 @@
+### Add user.
+POST http://127.0.0.1:8000/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "joe@example.com",
+  "password": "example123#",
+  "username": "Joe Doe"
+}
+
+### Query added user.
+GET http://127.0.0.1:8000/
+email: joe@example.com
+password: example123#
+Accept: application/json
+
+### Query invalid user.
+GET http://127.0.0.1:8000/
+email: invalid@example.com
+password: invalid123#
+Accept: application/json
+
+
+### Add a subscription.
+POST http://127.0.0.1:8000/subscriptions/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "joe@example.com",
+  "song_title": "Watching the Wheels"
+}
+
+### Add another subscription.
+POST http://127.0.0.1:8000/subscriptions/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "joe@example.com",
+  "song_title": "Folsom Prison Blues"
+}
+
+### Query added subscription.
+GET http://127.0.0.1:8000/subscriptions/
+email: joe@example.com
+Accept: application/json

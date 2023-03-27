@@ -1,0 +1,12 @@
+### Query all music.
+GET http://127.0.0.1:8000/all
+Accept: application/json
+
+### Query title,
+GET http://127.0.0.1:8000/?title=Migration
+
+### Query artist,
+GET http://127.0.0.1:8000/?artist=The%20Lumineers
+
+### Query year,
+GET http://127.0.0.1:8000/?year=2013
