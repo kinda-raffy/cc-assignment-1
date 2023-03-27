@@ -1,7 +1,29 @@
-from typing import NoReturn
+from typing import NoReturn, TypedDict
 import enum
+import json
 import boto3
 from mypy_boto3_dynamodb.service_resource import *
+
+
+class Song(TypedDict):
+    title: str
+    artist: str
+    year: int
+    web_url: str
+    img_url: str
+
+
+def upload_music_entries(db_name: str, entries: list[Song]) -> NoReturn:
+    db = boto3.resource('dynamodb')
+    table = db.Table(db_name)
+    for song in entries:
+        table.put_item(Item=song)
+
+
+def read_music_file(file_name: str) -> list[Song]:
+    with open(file_name) as json_file:
+        music = json.load(json_file)
+    return music["songs"]
 
 
 class KeyType(enum.StrEnum):
@@ -49,7 +71,9 @@ def create_table(
 
 
 def main() -> NoReturn:
-    create_table("Music", partition="title", sort="artist")
+    db_name = "Music"
+    create_table(db_name, partition="title", sort="artist")
+    upload_music_entries(db_name, read_music_file('data/a1.json'))
 
 
 if __name__ == "__main__":

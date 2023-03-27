@@ -2,7 +2,7 @@ from typing import *
 
 from requests import Response
 
-from loader import (
+from db_loader import (
     Song,
     read_music_file,
 )
