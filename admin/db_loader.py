@@ -2,6 +2,7 @@ from typing import NoReturn, TypedDict
 import enum
 import json
 import boto3
+from botocore.exceptions import WaiterError
 from mypy_boto3_dynamodb.service_resource import *
 
 
@@ -18,6 +19,7 @@ def upload_music_entries(db_name: str, entries: list[Song]) -> NoReturn:
     table = db.Table(db_name)
     for song in entries:
         table.put_item(Item=song)
+    print("Uploaded entries to DynamoDB.")
 
 
 def read_music_file(file_name: str) -> list[Song]:
@@ -36,12 +38,12 @@ def create_table(
         *,
         partition: str | int,
         sort: str | int
-) -> Table:
+) -> NoReturn:
     db = boto3.resource("dynamodb")
     partition_type = "S" if isinstance(partition, str) else "N"
     sort_type = "S" if isinstance(sort, str) else "N"
 
-    return db.create_table(
+    db.create_table(
         TableName=table_name,
         KeySchema=[
             {
@@ -68,6 +70,12 @@ def create_table(
             "WriteCapacityUnits": 10
         }
     )
+
+    try:
+        db.meta.client.get_waiter("table_exists").wait(TableName=table_name)
+        print("Table created successfully.")
+    except WaiterError:
+        print("Table did not become active within the specified timeout period.")
 
 
 def main() -> NoReturn:
