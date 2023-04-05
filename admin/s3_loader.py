@@ -1,13 +1,10 @@
-from typing import *
-
-from requests import Response
-
+from typing import NoReturn
+import requests
+import boto3
 from db_loader import (
     Song,
     read_music_file,
 )
-import boto3
-import requests
 
 
 def create_image_bucket(bucket_name: str) -> NoReturn:
@@ -18,7 +15,7 @@ def create_image_bucket(bucket_name: str) -> NoReturn:
         print(f"Bucket {bucket_name} already exists.")
 
 
-def upload_url_to_bucket(bucket_name: str, data: Response, key: str) -> NoReturn:
+def upload_url_to_bucket(bucket_name: str, data: requests.Response, key: str) -> NoReturn:
     s3 = boto3.resource("s3")
     s3.meta.client.upload_fileobj(
         Bucket=bucket_name,
@@ -27,12 +24,12 @@ def upload_url_to_bucket(bucket_name: str, data: Response, key: str) -> NoReturn
     )
 
 
-def download_image(url: str) -> Response:
+def download_image(url: str) -> requests.Response:
     return requests.get(url, stream=True)
 
 
 def main() -> NoReturn:
-    bucket_name = "test-music-images"
+    bucket_name = "s3897093-rmit-song-images"
     create_image_bucket(bucket_name)
 
     music_entries: list[Song] = read_music_file("data/a1.json")

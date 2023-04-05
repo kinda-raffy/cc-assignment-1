@@ -57,7 +57,12 @@ class RegisterData(pydantic.BaseModel):
 @app.post("/")
 async def register(user: RegisterData):
     """Register a new user."""
-    if user.email is None or user.password is None or user.username is None:
+    missing_required_fields: bool = None in (
+        user.email,
+        user.password,
+        user.username
+    )
+    if missing_required_fields:
         raise HTTPException(
             status_code=400,
             detail="Email, password or username is missing",
@@ -170,3 +175,37 @@ async def add_subscription(payload: SubscriptionData):
         "email":         payload.email,
         "subscriptions": response["Item"]["subscriptions"] + [payload.song_title],
     }
+
+
+def initialise_accounts_table(dynamodb):
+    """Initialise the Accounts table."""
+    table = dynamodb.create_table(
+        TableName="Accounts",
+        KeySchema=[
+            {
+                "AttributeName": "email",
+                "KeyType": "HASH",
+            },
+        ],
+        AttributeDefinitions=[
+            {
+                "AttributeName": "email",
+                "AttributeType": "S",
+            },
+        ],
+        ProvisionedThroughput={
+            "ReadCapacityUnits": 5,
+            "WriteCapacityUnits": 5,
+        },
+    )
+
+    table.meta.client.get_waiter("table_exists").wait(TableName="Accounts")
+    return dynamodb
+
+
+if __name__ == "__main__":
+    dynamodb = boto3.resource("dynamodb")
+    try:
+        initialise_accounts_table(dynamodb)
+    except dynamodb.meta.client.exceptions.ResourceInUseException:
+        pass

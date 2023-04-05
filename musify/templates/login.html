@@ -14,21 +14,45 @@
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col-sm-6 col-md-4">
-			<form class="form-container">
+			<form class="form-container" method="post" action="http://example.com">
 				<h1>Login</h1>
 				<div class="form-group">
 					<label for="email">Email address</label>
-					<input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+					<input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Enter email">
 				</div>
 				<div class="form-group">
 					<label for="password">Password</label>
-					<input type="password" class="form-control" id="password" placeholder="Password">
+					<input type="password" class="form-control" id="password" name="password" placeholder="Password">
 				</div>
 				<button type="submit" class="btn btn-primary btn-block">Submit</button>
+                <div id="loginError" class="text-danger mt-3"></div>
 			</form>
+            <div class="text-center">
+                <a href="{{ url_for("register") }}">Don't have an account? Register here</a>
+            </div>
 		</div>
 	</div>
 </div>
+
+<script>
+    $(function(){
+        $('form').submit(function(e){
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "http://example.com",
+                data: $('form').serialize(),
+                success: function(){
+                    sessionStorage.setItem('email', $('#email').val());
+                    window.location.href = "/home";
+                },
+                error: function(){
+                    $('#loginError').text('Invalid email or password.');
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

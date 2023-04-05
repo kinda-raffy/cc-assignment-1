@@ -48,11 +48,13 @@ $(document).ready(function() {
             type: 'POST',
             url: 'https://example.com',
             data: formData,
-            statusCode: {
-                404: function() {
-                    $('#error-message').html('Error: The resource could not be found.').show();
-                }
-            }
+            success: function(data) {
+                sessionStorage.setItem('email', $('#email').val());
+                window.location.href = '/home';
+            },
+            error: function(data) {
+                $('#error-message').html('Error: ' + data.responseJSON.message).show();
+            },
         });
     });
 });

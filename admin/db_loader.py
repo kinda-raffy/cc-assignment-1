@@ -3,7 +3,6 @@ import enum
 import json
 import boto3
 from botocore.exceptions import WaiterError
-from mypy_boto3_dynamodb.service_resource import *
 
 
 class Song(TypedDict):
