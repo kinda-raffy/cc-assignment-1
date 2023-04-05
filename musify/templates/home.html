@@ -78,6 +78,26 @@
                 </div>
             </form>
         <div id="query-result">
+            {% if query_music %}
+				{% for music in query_music %}
+					<div class="card mb-3">
+						<div class="row no-gutters">
+							<div class="col-md-3">
+								<img src="{{ music.artist_image_url }}" class="card-img">
+							</div>
+							<div class="col-md-9">
+								<div class="card-body">
+									<h5 class="card-title">{{ music.title }}</h5>
+									<p class="card-text">{{ music.artist }} ({{ music.year }})</p>
+									<button class="btn btn-danger" onclick="subscribeMusic('{{ music.id }}')">Subscribe</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			{% else %}
+				<p>No queried music.</p>
+			{% endif %}
     </div>
 
 </body>
