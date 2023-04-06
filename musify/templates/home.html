@@ -35,7 +35,10 @@
 								<div class="card-body">
 									<h5 class="card-title">{{ music.title }}</h5>
 									<p class="card-text">{{ music.artist }} ({{ music.year }})</p>
-									<button class="btn btn-danger" onclick="{{ removeMusic(music.title) }}">Remove</button>
+                                    <form method="post" action="{{ url_for('remove_subscription') }}">
+                                        <input type="hidden" name="title" value="{{ music.title }}">
+                                        <button class="btn btn-danger">Remove</button>
+                                    </form>
 								</div>
 							</div>
 						</div>

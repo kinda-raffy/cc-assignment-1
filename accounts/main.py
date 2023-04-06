@@ -197,6 +197,7 @@ async def delete_subscription(payload: SubscriptionData):
         }
     )
 
+
     invalid_response = "Item" not in response
     if invalid_response:
         raise HTTPException(
@@ -204,20 +205,18 @@ async def delete_subscription(payload: SubscriptionData):
             detail="Email is invalid",
         )
 
+    # Find index for the song to delete.
+    subscriptions = response["Item"]["subscriptions"]
+    rm_song_index = subscriptions.index(payload.song_title)
+
     # Delete the subscription from the user.
     table.update_item(
         Key={
             "email": payload.email,
         },
-        UpdateExpression="SET subscriptions = list_remove(subscriptions, :rm_song_title)",
-        ExpressionAttributeValues={":rm_song_title": payload.song_title},
+        UpdateExpression=f"REMOVE subscriptions[{rm_song_index}]",
         ReturnValues="ALL_NEW"
     )
-
-    return {
-        "email":         payload.email,
-        "subscriptions": response["Item"]["subscriptions"],
-    }
 
 
 def initialise_accounts_table(dynamodb):

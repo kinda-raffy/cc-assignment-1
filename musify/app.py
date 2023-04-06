@@ -126,8 +126,17 @@ def home():
     )
 
 
-def remove_subscription(title):
-    pass
+@app.route('/remove_subscription', methods=['POST'])
+def remove_subscription():
+    title = flask.request.form['title']
+    requests.delete(
+        f"{accounts_url}/subscriptions",
+        json={
+            "email": flask.session['email'],
+            "song_title": title
+        }
+    )
+    return flask.redirect('/home')
 
 
 @app.route('/add_subscription', methods=['POST'])
