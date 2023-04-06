@@ -1,5 +1,5 @@
 ### Add user.
-POST http://127.0.0.1:8000/
+POST http://127.0.0.1:8000/register/
 Content-Type: application/json
 Accept: application/json
 
@@ -9,18 +9,26 @@ Accept: application/json
   "username": "Joe Doe"
 }
 
-### Query added user.
-GET http://127.0.0.1:8000/
-email: joe@example.com
-password: example123#
+### Login added user.
+POST http://127.0.0.1:8000/login
+Content-Type: application/json
 Accept: application/json
 
-### Query invalid user.
-GET http://127.0.0.1:8000/
-email: invalid@example.com
-password: invalid123#
+{
+  "email": "joe@example.com",
+  "password": "example123#"
+}
+
+
+### Login invalid user.
+POST http://127.0.0.1:8000/login
+Content-Type: application/json
 Accept: application/json
 
+{
+  "email": "invalid@invlid.com",
+  "password": "invalid"
+}
 
 ### Add a subscription.
 POST http://127.0.0.1:8000/subscriptions/
@@ -46,3 +54,13 @@ Accept: application/json
 GET http://127.0.0.1:8000/subscriptions/
 email: joe@example.com
 Accept: application/json
+
+### Delete subscription.
+DELETE http://127.0.0.1:8000/subscriptions/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "joe@example.com",
+  "song_title": "Watching the Wheels"
+}

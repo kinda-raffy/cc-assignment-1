@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import FastAPI, Query, HTTPException
 import boto3
+import pydantic
 
 
 app = FastAPI()
@@ -42,9 +43,7 @@ async def get_music(
         attribute_name["#yr"] = "year"
         attribute_values[":_year"] = {"S": str(year)}
 
-    print("CONDITION ", condition)
     condition = " AND ".join(condition)
-    print("CONDITION ", condition)
     attribute_name_exist = attribute_name if attribute_name else None
     if attribute_name_exist:
         response = db.scan(

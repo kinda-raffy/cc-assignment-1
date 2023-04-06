@@ -1,40 +1,40 @@
 ### Query all music.
-GET http://127.0.0.1:8000/all
+GET http://127.0.0.1:8001/all
 Accept: application/json
 
 ### Query title.
-GET http://127.0.0.1:8000/?title=Migration
+GET http://127.0.0.1:8001/?title=Migration
 Accept: application/json
 
 ### Query artist.
-GET http://127.0.0.1:8000/?artist=The%20Lumineers
+GET http://127.0.0.1:8001/?artist=The%20Lumineers
 Accept: application/json
 
 
 ### Query year.
-GET http://127.0.0.1:8000/?year=2013
+GET http://127.0.0.1:8001/?year=2013
 Accept: application/json
 
 
 ### Query title and artist.
-GET http://127.0.0.1:8000/?title=Lola&artist=The%20Kinks
+GET http://127.0.0.1:8001/?title=Lola&artist=The%20Kinks
 Accept: application/json
 
 
 ### Query title and year.
-GET http://127.0.0.1:8000/?title=Harvest&year=1972
+GET http://127.0.0.1:8001/?title=Harvest&year=1972
 Accept: application/json
 
 ### Query artist and year.
-GET http://127.0.0.1:8000/?artist=Emmylou%20Harris&year=2000
+GET http://127.0.0.1:8001/?artist=Emmylou%20Harris&year=2000
 Accept: application/json
 
 ### Query invalid title.
-GET http://127.0.0.1:8000/?title=Invalid
+GET http://127.0.0.1:8001/?title=Invalid
 Accept: application/json
 
 ### Query invalid artist.
-GET http://127.0.0.1:8000/?artist=Invalid
+GET http://127.0.0.1:8001/?artist=Invalid
 
 ### Query invalid year.
-GET http://127.0.0.1:8000/?year=1267821
+GET http://127.0.0.1:8001/?year=1267821
