@@ -77,10 +77,23 @@ def create_table(
         print("Table did not become active within the specified timeout period.")
 
 
+def determine_s3_url(title: str) -> str:
+    bucket_name = "s3897093-rmit-song-images"
+    region = "us-east-1"
+    return f"https://{bucket_name}.s3.{region}.amazonaws.com/{title}"
+
+
+def replace_img_urls(entries: list[Song]) -> list[Song]:
+    for song in entries:
+        song["img_url"] = determine_s3_url(song["title"])
+    return entries
+
+
 def main() -> NoReturn:
     db_name = "Music"
     create_table(db_name, partition="title", sort="artist")
-    upload_music_entries(db_name, read_music_file('data/a1.json'))
+    db_entries = replace_img_urls(read_music_file('data/a1.json'))
+    upload_music_entries(db_name, db_entries)
 
 
 if __name__ == "__main__":
