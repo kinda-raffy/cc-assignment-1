@@ -3,24 +3,42 @@ from fastapi import (
     FastAPI,
     Header,
     HTTPException,
+    APIRouter
 )
 import boto3
 import pydantic
+from mangum import Mangum
 
 
+title = "Musify Account Service"
+description = "This is a service for managing user accounts"
+version = "0.1.0"
 app = FastAPI(
-    title="Musify Account Service",
-    description="This is a service for managing user accounts",
-    version="0.1.0",
+    title=title,
+    description=description,
+    version=version,
 )
+handler = Mangum(app)
+router = APIRouter(prefix="/accounts", tags=["accounts"])
+
+
+@router.get("/__information__")
+async def get_info():
+    """Get the details of the service."""
+    return {
+        "name": title,
+        "description": description,
+        "version": version,
+    }
 
 
 class LoginData(pydantic.BaseModel):
+    """Represents the data required to login a user."""
     email: str
     password: str
 
 
-@app.post("/login")
+@router.post("/login")
 async def login(req: LoginData):
     """Login an existing user."""
     if req.email is None or req.password is None:
@@ -50,13 +68,14 @@ async def login(req: LoginData):
 
 
 class RegisterData(pydantic.BaseModel):
+    """Represents the data required to register a user."""
     email: str
     password: str
     username: str
     subscription: Optional[str] = list()
 
 
-@app.post("/register")
+@router.post("/register")
 async def register(user: RegisterData):
     """Register a new user."""
     missing_required_fields: bool = None in (
@@ -78,13 +97,13 @@ async def register(user: RegisterData):
             "email": user.email,
         }
     )
+    # Ensure the email does not already exist.
     account_exists = "Item" in response
     if account_exists:
         raise HTTPException(
             status_code=409,
             detail="The email already exists",
         )
-
     # Create a new account.
     table.put_item(
         Item={
@@ -101,7 +120,7 @@ async def register(user: RegisterData):
     }
 
 
-@app.get("/subscriptions")
+@router.get("/subscriptions")
 async def get_subscriptions(
         email: str = Header(None, description="Email of the user"),
 ):
@@ -111,16 +130,15 @@ async def get_subscriptions(
             status_code=400,
             detail="Email is missing",
         )
-
     dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table("Accounts")
-
+    # Get the user.
     response = table.get_item(
         Key={
             "email": email,
         }
     )
-
+    # Ensure the user exists.
     invalid_response = "Item" not in response
     if invalid_response:
         raise HTTPException(
@@ -132,13 +150,15 @@ async def get_subscriptions(
 
 
 class SubscriptionData(pydantic.BaseModel):
+    """Represents the data required to add or delete a subscription."""
     email: str
     song_title: str
 
 
-@app.post("/subscriptions")
+@router.post("/subscriptions")
 async def add_subscription(payload: SubscriptionData):
-    """Add a subscription to a user."""
+    """Add a subscription to a given user."""
+    # Ensure the email and song title are not missing.
     if payload.email is None or payload.song_title is None:
         raise HTTPException(
             status_code=400,
@@ -147,20 +167,19 @@ async def add_subscription(payload: SubscriptionData):
 
     dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table("Accounts")
-
+    # Get the user.
     response = table.get_item(
         Key={
             "email": payload.email,
         }
     )
-
+    # Ensure the user exists.
     invalid_response = "Item" not in response
     if invalid_response:
         raise HTTPException(
             status_code=404,
             detail="Email is invalid",
         )
-
     # Add the subscription to the user.
     table.update_item(
         Key={
@@ -179,9 +198,9 @@ async def add_subscription(payload: SubscriptionData):
     }
 
 
-@app.delete("/subscriptions")
+@router.delete("/subscriptions")
 async def delete_subscription(payload: SubscriptionData):
-    """Delete a subscription from a user."""
+    """Delete a subscription from a given user."""
     if payload.email is None or payload.song_title is None:
         raise HTTPException(
             status_code=400,
@@ -190,25 +209,22 @@ async def delete_subscription(payload: SubscriptionData):
 
     dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table("Accounts")
-
+    # Get the user.
     response = table.get_item(
         Key={
             "email": payload.email,
         }
     )
-
-
+    # Ensure the user exists.
     invalid_response = "Item" not in response
     if invalid_response:
         raise HTTPException(
             status_code=404,
             detail="Email is invalid",
         )
-
     # Find index for the song to delete.
     subscriptions = response["Item"]["subscriptions"]
     rm_song_index = subscriptions.index(payload.song_title)
-
     # Delete the subscription from the user.
     table.update_item(
         Key={
@@ -219,35 +235,4 @@ async def delete_subscription(payload: SubscriptionData):
     )
 
 
-def initialise_accounts_table(dynamodb):
-    """Initialise the Accounts table."""
-    table = dynamodb.create_table(
-        TableName="Accounts",
-        KeySchema=[
-            {
-                "AttributeName": "email",
-                "KeyType": "HASH",
-            },
-        ],
-        AttributeDefinitions=[
-            {
-                "AttributeName": "email",
-                "AttributeType": "S",
-            },
-        ],
-        ProvisionedThroughput={
-            "ReadCapacityUnits": 5,
-            "WriteCapacityUnits": 5,
-        },
-    )
-
-    table.meta.client.get_waiter("table_exists").wait(TableName="Accounts")
-    return dynamodb
-
-
-if __name__ == "__main__":
-    dynamodb = boto3.resource("dynamodb")
-    try:
-        initialise_accounts_table(dynamodb)
-    except dynamodb.meta.client.exceptions.ResourceInUseException:
-        pass
+app.include_router(router)

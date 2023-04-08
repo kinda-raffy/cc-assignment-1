@@ -21,7 +21,17 @@ Accept: application/json
 
 
 ### Login invalid user.
-POST http://127.0.0.1:8000/login
+POST https://jtp42f3ocj.execute-api.us-east-1.amazonaws.com/accounts/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "invalid@invlid.com",
+  "password": "invalid"
+}
+
+### Login invalid user.
+POST http://127.0.0.1:8000/accounts/login
 Content-Type: application/json
 Accept: application/json
 

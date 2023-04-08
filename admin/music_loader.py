@@ -6,6 +6,7 @@ from botocore.exceptions import WaiterError
 
 
 class Song(TypedDict):
+    """Represents a song in the database."""
     title: str
     artist: str
     year: int
@@ -14,6 +15,7 @@ class Song(TypedDict):
 
 
 def upload_music_entries(db_name: str, entries: list[Song]) -> NoReturn:
+    """Uploads a list of songs to the database."""
     db = boto3.resource('dynamodb')
     table = db.Table(db_name)
     for song in entries:
@@ -22,12 +24,14 @@ def upload_music_entries(db_name: str, entries: list[Song]) -> NoReturn:
 
 
 def read_music_file(file_name: str) -> list[Song]:
+    """Reads a JSON file containing a list of songs."""
     with open(file_name) as json_file:
         music = json.load(json_file)
     return music["songs"]
 
 
 class KeyType(enum.StrEnum):
+    """Represents the type of key in a DynamoDB table."""
     PRIMARY = "HASH"
     SORT = "RANGE"
 
@@ -38,6 +42,7 @@ def create_table(
         partition: str | int,
         sort: str | int
 ) -> NoReturn:
+    """Creates a DynamoDB table with the given name and partition/sort keys."""
     db = boto3.resource("dynamodb")
     partition_type = "S" if isinstance(partition, str) else "N"
     sort_type = "S" if isinstance(sort, str) else "N"
@@ -78,12 +83,14 @@ def create_table(
 
 
 def determine_s3_url(title: str) -> str:
+    """Determines the S3 URL for the given song title."""
     bucket_name = "s3897093-rmit-song-images"
     region = "us-east-1"
     return f"https://{bucket_name}.s3.{region}.amazonaws.com/{title}"
 
 
 def replace_img_urls(entries: list[Song]) -> list[Song]:
+    """Replaces the img_url field with the S3 URL for the song."""
     for song in entries:
         song["img_url"] = determine_s3_url(song["title"])
     return entries
